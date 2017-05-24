@@ -9,18 +9,13 @@ namespace XPlat
     {
         static void Main(string[] args)
         {
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var outputFolder = "report";
-            var outputFile = "report.txt";
-            var outputPath = Path.Combine(currentDirectory, outputFolder, outputFile);
-            var directory = Path.GetDirectoryName(outputPath);
-            Directory.CreateDirectory(directory);
+            var appSettings = new AppSettings(args);
+            var outputSettings = appSettings.OutputSettings;
 
-            Console.WriteLine($"Saving report to {outputPath}.");
-
-            var site = "https://g0t4.github.io/pluralsight-dotnet-core-xplat-apps/";
+            Console.WriteLine($"Saving report to {outputSettings.ReportFilePath}.");
+            Directory.CreateDirectory(outputSettings.ReportDirectory);
             var client = new HttpClient();
-            var body = client.GetStringAsync(site);
+            var body = client.GetStringAsync(appSettings.Site);
             Console.WriteLine(body.Result);
 
 			Console.WriteLine();
@@ -31,7 +26,7 @@ namespace XPlat
             //File.WriteAllLines(outputPath, links);
             var checkedLinks = LinkChecker.CheckLinks(links);
 
-            using (var file = File.CreateText(outputPath))
+            using (var file = File.CreateText(outputSettings.ReportFilePath))
             {
                 foreach (var link in checkedLinks.OrderBy(l => l.Exists))
                 {
